@@ -412,6 +412,41 @@ unmount_partition() {
     echo "=========================================="
 }
 
+# Função para visualizar discos montados
+view_mounted() {
+    echo "=== Visualizando Discos Montados / Viewing Mounted Disks ==="
+    echo ""
+    
+    echo "Discos e Partições Montados / Mounted Disks and Partitions:"
+    echo "-----------------------------------------------------------"
+    df -h | head -1  # Cabeçalho
+    df -h | grep -E "^/dev/" | sort
+    echo ""
+    
+    echo "Informações Detalhadas de Montagem / Detailed Mount Information:"
+    echo "----------------------------------------------------------------"
+    mount | grep -E "^/dev/" | sort | while read line; do
+        device=$(echo "$line" | awk '{print $1}')
+        mount_point=$(echo "$line" | awk '{print $3}')
+        fs_type=$(echo "$line" | awk '{print $5}')
+        options=$(echo "$line" | sed 's/.*(\(.*\)).*/\1/')
+        
+        echo "Dispositivo / Device: $device"
+        echo "Ponto de Montagem / Mount Point: $mount_point"
+        echo "Sistema de Arquivos / Filesystem: $fs_type"
+        echo "Opções / Options: $options"
+        echo "---"
+    done
+    echo ""
+    
+    echo "Uso de Espaço por Dispositivo / Space Usage by Device:"
+    echo "------------------------------------------------------"
+    df -h | grep -E "^/dev/" | awk '{printf "%-20s %8s %8s %8s %6s %s\n", $1, $2, $3, $4, $5, $6}'
+    echo ""
+    
+    echo "=========================================="
+}
+
 # Função para montagem automática
 auto_mount() {
     echo "=== Configurando Montagem Automática / Configuring Auto Mount ==="
@@ -518,12 +553,13 @@ show_menu() {
     echo "=========================================="
     echo ""
     echo "1) Listar Discos e Partições / List Disks and Partitions"
-    echo "2) Criar Partição / Create Partition"
-    echo "3) Apagar Partição / Delete Partition"
-    echo "4) Formatar Partição / Format Partition"
-    echo "5) Montar Partição / Mount Partition"
-    echo "6) Desmontar Partição / Unmount Partition"
-    echo "7) Configurar Montagem Automática / Configure Auto Mount"
+    echo "2) Visualizar Discos Montados / View Mounted Disks"
+    echo "3) Criar Partição / Create Partition"
+    echo "4) Apagar Partição / Delete Partition"
+    echo "5) Formatar Partição / Format Partition"
+    echo "6) Montar Partição / Mount Partition"
+    echo "7) Desmontar Partição / Unmount Partition"
+    echo "8) Configurar Montagem Automática / Configure Auto Mount"
     echo "0) Sair / Exit"
     echo ""
     echo "=========================================="
@@ -536,7 +572,7 @@ main() {
     
     while true; do
         show_menu
-        read -p "Escolha uma opção / Choose an option (0-7): " choice
+        read -p "Escolha uma opção / Choose an option (0-8): " choice
         echo ""
         
         case $choice in
@@ -545,26 +581,30 @@ main() {
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             2)
-                create_partition
+                view_mounted
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             3)
-                delete_partition
+                create_partition
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             4)
-                format_partition
+                delete_partition
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             5)
-                mount_partition
+                format_partition
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             6)
-                unmount_partition
+                mount_partition
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             7)
+                unmount_partition
+                read -p "Pressione Enter para continuar / Press Enter to continue..."
+                ;;
+            8)
                 auto_mount
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;

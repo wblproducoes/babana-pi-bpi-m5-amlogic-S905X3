@@ -33,45 +33,71 @@ detect_system() {
     fi
 }
 
-# Lista de pacotes
-PACKAGES="timeshift xauth"
-
-# Função para instalar pacotes
+# Função para instalar Timeshift
 install_packages() {
-    echo "=== Instalando Timeshift e Xauth / Installing Timeshift and Xauth ==="
-    echo "Pacotes a instalar / Packages to install: $PACKAGES"
+    echo "=== Instalando Timeshift / Installing Timeshift ==="
     echo ""
     
-    # Atualizar lista de pacotes primeiro
+    # Verificar se já está instalado
+    if command -v timeshift &> /dev/null; then
+        echo "Timeshift já está instalado / Timeshift is already installed"
+        timeshift --version
+        return
+    fi
+    
+    echo "Adicionando repositório PPA oficial do Timeshift..."
+    echo "Adding official Timeshift PPA repository..."
+    
+    # Instalar software-properties-common se necessário
+    apt update -y
+    apt install -y software-properties-common
+    
+    # Adicionar PPA oficial do Timeshift
+    add-apt-repository -y ppa:teejee2008/timeshift
+    
+    if [[ $? -ne 0 ]]; then
+        echo "✗ Erro ao adicionar PPA / Error adding PPA"
+        echo "Tentando instalação via repositórios padrão..."
+        echo "Trying installation via default repositories..."
+    fi
+    
+    # Atualizar lista de pacotes
     echo "Atualizando lista de pacotes / Updating package list..."
     apt update -y
     echo ""
     
-    # Instalar cada pacote
-    for package in $PACKAGES; do
-        echo "Instalando / Installing: $package"
-        apt install -y $package
-        if [[ $? -eq 0 ]]; then
-            echo "✓ $package instalado com sucesso / installed successfully"
-        else
-            echo "✗ Erro ao instalar / Error installing $package"
-        fi
-        echo ""
-    done
+    # Instalar Timeshift
+    echo "Instalando Timeshift / Installing Timeshift..."
+    apt install -y timeshift
     
+    if [[ $? -eq 0 ]]; then
+        echo "✓ Timeshift instalado com sucesso / Timeshift installed successfully"
+        echo ""
+        echo "Versão instalada / Installed version:"
+        timeshift --version
+    else
+        echo "✗ Erro ao instalar Timeshift / Error installing Timeshift"
+    fi
+    
+    echo ""
     echo "=========================================="
     echo "INSTALAÇÃO CONCLUÍDA / INSTALLATION COMPLETED"
     echo "=========================================="
 }
 
-# Função para desinstalar pacotes
+# Função para desinstalar Timeshift
 uninstall_packages() {
-    echo "=== Desinstalando Timeshift e Xauth / Uninstalling Timeshift and Xauth ==="
-    echo "Pacotes a remover / Packages to remove: $PACKAGES"
+    echo "=== Desinstalando Timeshift / Uninstalling Timeshift ==="
     echo ""
     
+    # Verificar se está instalado
+    if ! command -v timeshift &> /dev/null; then
+        echo "Timeshift não está instalado / Timeshift is not installed"
+        return
+    fi
+    
     # Confirmar desinstalação
-    read -p "Tem certeza que deseja remover todos os pacotes? (s/N) / Are you sure you want to remove all packages? (y/N): " confirm
+    read -p "Tem certeza que deseja remover o Timeshift? (s/N) / Are you sure you want to remove Timeshift? (y/N): " confirm
     if [[ ! "$confirm" =~ ^[SsYy]$ ]]; then
         echo "Operação cancelada / Operation cancelled"
         return
@@ -81,26 +107,54 @@ uninstall_packages() {
     echo "Parando serviços do Timeshift / Stopping Timeshift services..."
     systemctl stop crond 2>/dev/null || true
     
-    # Remover cada pacote
-    for package in $PACKAGES; do
-        echo "Removendo / Removing: $package"
-        apt remove --purge -y $package
-        if [[ $? -eq 0 ]]; then
-            echo "✓ $package removido com sucesso / removed successfully"
-        else
-            echo "✗ Erro ao remover / Error removing $package"
-        fi
-        echo ""
-    done
+    # Remover Timeshift
+    echo "Removendo Timeshift / Removing Timeshift..."
+    apt remove --purge -y timeshift
     
-    # Remover diretórios de configuração e backups (se solicitado)
-    read -p "Deseja remover também os backups e configurações? (s/N) / Do you want to remove backups and configurations too? (y/N): " remove_data
-    if [[ "$remove_data" =~ ^[SsYy]$ ]]; then
-        echo "Removendo dados do Timeshift / Removing Timeshift data..."
-        rm -rf /timeshift 2>/dev/null || true
-        rm -rf /home/timeshift 2>/dev/null || true
+    if [[ $? -eq 0 ]]; then
+        echo "✓ Timeshift removido com sucesso / Timeshift removed successfully"
+    else
+        echo "✗ Erro ao remover Timeshift / Error removing Timeshift"
+    fi
+    
+    # Remover PPA (opcional)
+    read -p "Deseja remover o PPA do Timeshift? (s/N) / Do you want to remove Timeshift PPA? (y/N): " remove_ppa
+    if [[ "$remove_ppa" =~ ^[SsYy]$ ]]; then
+        echo "Removendo PPA do Timeshift / Removing Timeshift PPA..."
+        add-apt-repository --remove -y ppa:teejee2008/timeshift 2>/dev/null || true
+    fi
+    
+    # Remover diretório /timeshift onde os snapshots são armazenados
+    if [[ -d "/timeshift" ]]; then
+        echo ""
+        echo "⚠️  ATENÇÃO / WARNING ⚠️"
+        echo "Encontrado diretório /timeshift com snapshots do sistema"
+        echo "Found /timeshift directory with system snapshots"
+        echo "Este diretório contém todos os backups criados pelo Timeshift"
+        echo "This directory contains all backups created by Timeshift"
+        echo ""
+        read -p "Deseja remover o diretório /timeshift? (s/N) / Do you want to remove /timeshift directory? (y/N): " remove_timeshift_dir
+        
+        if [[ "$remove_timeshift_dir" =~ ^[SsYy]$ ]]; then
+            echo "Removendo diretório /timeshift / Removing /timeshift directory..."
+            rm -rf /timeshift
+            if [[ $? -eq 0 ]]; then
+                echo "✓ Diretório /timeshift removido / /timeshift directory removed"
+            else
+                echo "✗ Erro ao remover diretório /timeshift / Error removing /timeshift directory"
+            fi
+        else
+            echo "Diretório /timeshift mantido / /timeshift directory kept"
+        fi
+    fi
+    
+    # Remover configurações do usuário
+    read -p "Deseja remover configurações do usuário? (s/N) / Do you want to remove user configurations? (y/N): " remove_config
+    if [[ "$remove_config" =~ ^[SsYy]$ ]]; then
+        echo "Removendo configurações / Removing configurations..."
         rm -rf ~/.config/timeshift 2>/dev/null || true
-        echo "Dados removidos / Data removed"
+        rm -rf /etc/timeshift 2>/dev/null || true
+        echo "Configurações removidas / Configurations removed"
     fi
     
     # Limpeza adicional
@@ -108,6 +162,7 @@ uninstall_packages() {
     apt autoremove -y
     apt autoclean -y
     
+    echo ""
     echo "=========================================="
     echo "DESINSTALAÇÃO CONCLUÍDA / UNINSTALLATION COMPLETED"
     echo "=========================================="
@@ -118,32 +173,57 @@ create_backup() {
     echo "=== Criando Backup com Timeshift / Creating Backup with Timeshift ==="
     echo ""
     
-    # Verificar se Timeshift está instalado
+    # Verificar se o Timeshift está instalado
     if ! command -v timeshift &> /dev/null; then
-        echo "Timeshift não está instalado. Instale primeiro usando a opção 1."
-        echo "Timeshift is not installed. Install it first using option 1."
+        echo "✗ Timeshift não está instalado / Timeshift is not installed"
+        echo "Execute a opção 'Instalar Timeshift' primeiro / Run 'Install Timeshift' option first"
         return
     fi
     
-    # Solicitar comentário para o backup
-    read -p "Digite um comentário para este backup / Enter a comment for this backup: " comment
-    if [[ -z "$comment" ]]; then
-        comment="Backup manual $(date '+%Y-%m-%d %H:%M:%S')"
+    # Verificar se o Timeshift está configurado
+    if [[ ! -f "/etc/timeshift/timeshift.json" ]]; then
+        echo "⚠️  Timeshift não está configurado / Timeshift is not configured"
+        echo "Configurando automaticamente... / Configuring automatically..."
+        echo ""
+        
+        # Configuração básica automática
+        timeshift --setup --snapshot-device /dev/sda1 --backup-device /dev/sda1 2>/dev/null || true
     fi
     
-    echo "Criando backup com comentário: $comment"
-    echo "Creating backup with comment: $comment"
+    # Solicitar comentário para o backup
+    echo "Você pode adicionar um comentário para este backup:"
+    echo "You can add a comment for this backup:"
+    read -p "Comentário (opcional) / Comment (optional): " backup_comment
+    
+    if [[ -z "$backup_comment" ]]; then
+        backup_comment="Backup manual criado via script / Manual backup created via script"
+    fi
+    
+    echo ""
+    echo "Criando snapshot do sistema / Creating system snapshot..."
+    echo "Comentário / Comment: $backup_comment"
     echo ""
     
-    # Criar backup
-    timeshift --create --comments "$comment"
+    # Criar o backup
+    timeshift --create --comments "$backup_comment"
     
     if [[ $? -eq 0 ]]; then
         echo ""
         echo "✓ Backup criado com sucesso / Backup created successfully"
+        echo ""
+        
+        # Mostrar informações do último backup
+        echo "Informações do backup / Backup information:"
+        timeshift --list | tail -5
+        
+        echo ""
+        echo "Para ver todos os backups: timeshift --list"
+        echo "To see all backups: timeshift --list"
     else
         echo ""
         echo "✗ Erro ao criar backup / Error creating backup"
+        echo "Verifique se há espaço suficiente no disco / Check if there's enough disk space"
+        echo "Verifique as permissões / Check permissions"
     fi
     
     echo "=========================================="
@@ -151,18 +231,72 @@ create_backup() {
 
 # Função para listar backups
 list_backups() {
-    echo "=== Listando Backups Disponíveis / Listing Available Backups ==="
+    echo "=== Ver Backups do Timeshift / View Timeshift Backups ==="
     echo ""
     
     # Verificar se Timeshift está instalado
     if ! command -v timeshift &> /dev/null; then
-        echo "Timeshift não está instalado. Instale primeiro usando a opção 1."
-        echo "Timeshift is not installed. Install it first using option 1."
+        echo "✗ Timeshift não está instalado / Timeshift is not installed"
+        echo "Execute a opção 'Instalar Timeshift' primeiro / Run 'Install Timeshift' option first"
         return
     fi
     
-    # Listar backups
+    echo "Listando todos os snapshots do sistema / Listing all system snapshots..."
+    echo ""
+    
+    # Verificar se existem backups
+    backup_count=$(timeshift --list 2>/dev/null | grep -c "^>" || echo "0")
+    
+    if [[ "$backup_count" -eq 0 ]]; then
+        echo "✗ Nenhum backup encontrado / No backups found"
+        echo ""
+        echo "Para criar um backup:"
+        echo "To create a backup:"
+        echo "• Use a opção 'Criar Backup com Timeshift'"
+        echo "• Use the 'Create Backup with Timeshift' option"
+        echo "• Ou execute: timeshift --create"
+        echo "• Or run: timeshift --create"
+        return
+    fi
+    
+    echo "Snapshots encontrados / Snapshots found: $backup_count"
+    echo "========================================================"
+    
+    # Listar backups com informações detalhadas
     timeshift --list
+    
+    if [[ $? -eq 0 ]]; then
+        echo "========================================================"
+        echo ""
+        
+        # Mostrar informações adicionais
+        echo "Informações adicionais / Additional information:"
+        echo "• Para restaurar um backup, use a opção 'Restaurar Backup'"
+        echo "• To restore a backup, use the 'Restore Backup' option"
+        echo "• Para criar um novo backup, use a opção 'Criar Backup'"
+        echo "• To create a new backup, use the 'Create Backup' option"
+        echo ""
+        
+        # Mostrar espaço usado pelos backups
+        if [[ -d "/timeshift" ]]; then
+            echo "Espaço usado pelos backups / Space used by backups:"
+            du -sh /timeshift 2>/dev/null || echo "Não foi possível calcular / Could not calculate"
+        fi
+        
+        # Mostrar localização dos backups
+        echo ""
+        echo "Localização dos backups / Backup location:"
+        if [[ -d "/timeshift" ]]; then
+            echo "📁 /timeshift"
+        else
+            echo "⚠️  Diretório de backups não encontrado / Backup directory not found"
+        fi
+    else
+        echo ""
+        echo "✗ Erro ao listar backups / Error listing backups"
+        echo "Verifique se o Timeshift está configurado corretamente"
+        echo "Check if Timeshift is configured correctly"
+    fi
     
     echo ""
     echo "=========================================="
@@ -175,55 +309,96 @@ restore_backup() {
     
     # Verificar se Timeshift está instalado
     if ! command -v timeshift &> /dev/null; then
-        echo "Timeshift não está instalado. Instale primeiro usando a opção 1."
-        echo "Timeshift is not installed. Install it first using option 1."
+        echo "✗ Timeshift não está instalado / Timeshift is not installed"
+        echo "Execute a opção 'Instalar Timeshift' primeiro / Run 'Install Timeshift' option first"
         return
     fi
     
-    # Mostrar backups disponíveis primeiro
+    # Listar backups disponíveis
+    echo "Listando snapshots existentes / Listing existing snapshots..."
+    echo ""
+    
+    # Verificar se existem backups
+    backup_count=$(timeshift --list 2>/dev/null | grep -c "^>" || echo "0")
+    
+    if [[ "$backup_count" -eq 0 ]]; then
+        echo "✗ Nenhum backup encontrado / No backups found"
+        echo "Crie um backup primeiro usando a opção 'Criar Backup'"
+        echo "Create a backup first using 'Create Backup' option"
+        return
+    fi
+    
     echo "Backups disponíveis / Available backups:"
-    echo "----------------------------------------"
+    echo "========================================"
     timeshift --list
+    echo "========================================"
     echo ""
     
-    # Solicitar qual backup restaurar
-    read -p "Digite o nome do snapshot para restaurar (ex: 2024-01-15_10-30-45) / Enter snapshot name to restore (ex: 2024-01-15_10-30-45): " snapshot
-    
-    if [[ -z "$snapshot" ]]; then
-        echo "Nome do snapshot não fornecido. Operação cancelada."
-        echo "Snapshot name not provided. Operation cancelled."
-        return
-    fi
-    
-    # Confirmar restauração
-    echo ""
-    echo "⚠️  ATENÇÃO / WARNING ⚠️"
-    echo "Esta operação irá restaurar o sistema para o estado do backup selecionado."
-    echo "This operation will restore the system to the selected backup state."
-    echo "Todos os dados atuais podem ser perdidos!"
-    echo "All current data may be lost!"
-    echo ""
-    read -p "Tem certeza que deseja continuar? (s/N) / Are you sure you want to continue? (y/N): " confirm
-    
-    if [[ ! "$confirm" =~ ^[SsYy]$ ]]; then
-        echo "Operação cancelada / Operation cancelled"
-        return
-    fi
-    
-    # Executar restauração
-    echo "Iniciando restauração do snapshot: $snapshot"
-    echo "Starting restoration of snapshot: $snapshot"
-    echo ""
-    
-    timeshift --restore --snapshot "$snapshot"
-    
-    if [[ $? -eq 0 ]]; then
+    # Verificar se o ambiente gráfico está disponível
+    if [[ -n "$DISPLAY" ]] || [[ -n "$WAYLAND_DISPLAY" ]]; then
+        echo "Abrindo assistente gráfico do Timeshift..."
+        echo "Opening Timeshift graphical assistant..."
         echo ""
-        echo "✓ Restauração concluída com sucesso / Restoration completed successfully"
-        echo "O sistema pode precisar ser reiniciado / The system may need to be restarted"
+        echo "No assistente gráfico você pode:"
+        echo "In the graphical assistant you can:"
+        echo "• Visualizar todos os snapshots disponíveis"
+        echo "• View all available snapshots"
+        echo "• Selecionar qual snapshot restaurar"
+        echo "• Select which snapshot to restore"
+        echo "• Escolher quais arquivos restaurar"
+        echo "• Choose which files to restore"
+        echo ""
+        
+        # Abrir interface gráfica
+        timeshift-gtk &
+        
+        echo "✓ Interface gráfica aberta / Graphical interface opened"
+        echo "Use a interface para selecionar e restaurar o backup desejado"
+        echo "Use the interface to select and restore the desired backup"
     else
+        echo "⚠️  Interface gráfica não disponível / Graphical interface not available"
+        echo "Modo de linha de comando / Command line mode"
         echo ""
-        echo "✗ Erro durante a restauração / Error during restoration"
+        
+        # Solicitar ID do backup
+        read -p "Digite o ID do snapshot para restaurar / Enter snapshot ID to restore: " backup_id
+        
+        if [[ -z "$backup_id" ]]; then
+            echo "ID do snapshot não fornecido / Snapshot ID not provided"
+            return
+        fi
+        
+        # Confirmar restauração
+        echo ""
+        echo "⚠️  ATENÇÃO / WARNING ⚠️"
+        echo "Esta operação irá restaurar o sistema para o estado do snapshot selecionado"
+        echo "This operation will restore the system to the selected snapshot state"
+        echo "Todos os dados criados após este snapshot serão perdidos"
+        echo "All data created after this snapshot will be lost"
+        echo ""
+        read -p "Tem certeza que deseja continuar? (s/N) / Are you sure you want to continue? (y/N): " confirm
+        
+        if [[ ! "$confirm" =~ ^[SsYy]$ ]]; then
+            echo "Operação cancelada / Operation cancelled"
+            return
+        fi
+        
+        echo ""
+        echo "Restaurando snapshot $backup_id..."
+        echo "Restoring snapshot $backup_id..."
+        echo ""
+        
+        # Restaurar backup
+        timeshift --restore --snapshot "$backup_id"
+        
+        if [[ $? -eq 0 ]]; then
+            echo ""
+            echo "✓ Snapshot restaurado com sucesso / Snapshot restored successfully"
+            echo "⚠️  Reinicie o sistema para completar a restauração / Restart system to complete restoration"
+        else
+            echo ""
+            echo "✗ Erro ao restaurar snapshot / Error restoring snapshot"
+        fi
     fi
     
     echo "=========================================="
@@ -285,15 +460,12 @@ show_menu() {
     echo "  Banana Pi M5 & Ubuntu 24.04"
     echo "=========================================="
     echo ""
-    echo "Pacotes: timeshift, xauth"
-    echo ""
-    echo "1) Instalar Timeshift e Xauth / Install Timeshift and Xauth"
-    echo "2) Desinstalar Timeshift e Xauth / Uninstall Timeshift and Xauth"
-    echo "3) Configurar Timeshift / Configure Timeshift"
-    echo "4) Criar Backup / Create Backup"
-    echo "5) Listar Backups / List Backups"
-    echo "6) Restaurar Backup / Restore Backup"
-    echo "0) Sair / Exit"
+    echo "1) Instalar Timeshift / Install Timeshift"
+    echo "2) Desinstalar Timeshift / Uninstall Timeshift"
+    echo "3) Criar Backup com Timeshift / Create Backup with Timeshift"
+    echo "4) Restaurar Backup com Timeshift / Restore Backup with Timeshift"
+    echo "5) Ver Backups do Timeshift / View Timeshift Backups"
+    echo "6) Sair / Exit"
     echo ""
     echo "=========================================="
 }
@@ -304,7 +476,7 @@ main() {
     
     while true; do
         show_menu
-        read -p "Escolha uma opção / Choose an option (0-6): " choice
+        read -p "Escolha uma opção / Choose an option (1-6): " choice
         echo ""
         
         case $choice in
@@ -317,11 +489,11 @@ main() {
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             3)
-                configure_timeshift
+                create_backup
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             4)
-                create_backup
+                restore_backup
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             5)
@@ -329,10 +501,6 @@ main() {
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
                 ;;
             6)
-                restore_backup
-                read -p "Pressione Enter para continuar / Press Enter to continue..."
-                ;;
-            0)
                 echo "Saindo... / Exiting..."
                 exit 0
                 ;;
