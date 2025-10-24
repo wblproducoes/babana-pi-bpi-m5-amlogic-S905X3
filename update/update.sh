@@ -98,6 +98,44 @@ full_update() {
     echo "=========================================="
 }
 
+# Função para reiniciar o sistema
+restart_system() {
+    echo "=========================================="
+    echo "REINICIANDO SISTEMA / RESTARTING SYSTEM"
+    echo "=========================================="
+    echo "O sistema será reiniciado em 10 segundos..."
+    echo "The system will restart in 10 seconds..."
+    echo "Pressione Ctrl+C para cancelar / Press Ctrl+C to cancel"
+    echo ""
+    
+    for i in {10..1}; do
+        echo "Reiniciando em $i segundos... / Restarting in $i seconds..."
+        sleep 1
+    done
+    
+    echo "Reiniciando agora... / Restarting now..."
+    reboot
+}
+
+# Função para desligar o sistema
+shutdown_system() {
+    echo "=========================================="
+    echo "DESLIGANDO SISTEMA / SHUTTING DOWN SYSTEM"
+    echo "=========================================="
+    echo "O sistema será desligado em 10 segundos..."
+    echo "The system will shutdown in 10 seconds..."
+    echo "Pressione Ctrl+C para cancelar / Press Ctrl+C to cancel"
+    echo ""
+    
+    for i in {10..1}; do
+        echo "Desligando em $i segundos... / Shutting down in $i seconds..."
+        sleep 1
+    done
+    
+    echo "Desligando agora... / Shutting down now..."
+    shutdown -h now
+}
+
 # Função para mostrar o menu
 show_menu() {
     clear
@@ -114,6 +152,8 @@ show_menu() {
     echo "5) Autoremove (Remover pacotes desnecessários)"
     echo "6) Autoclean (Limpar cache)"
     echo "7) ATUALIZAÇÃO COMPLETA (Todas as opções acima)"
+    echo "8) Reiniciar Sistema / Restart System"
+    echo "9) Desligar Sistema / Shutdown System"
     echo "0) Sair / Exit"
     echo ""
     echo "=========================================="
@@ -125,7 +165,7 @@ main() {
     
     while true; do
         show_menu
-        read -p "Escolha uma opção / Choose an option (0-7): " choice
+        read -p "Escolha uma opção / Choose an option (0-9): " choice
         echo ""
         
         case $choice in
@@ -156,6 +196,12 @@ main() {
             7)
                 full_update
                 read -p "Pressione Enter para continuar / Press Enter to continue..."
+                ;;
+            8)
+                restart_system
+                ;;
+            9)
+                shutdown_system
                 ;;
             0)
                 echo "Saindo... / Exiting..."

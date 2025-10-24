@@ -1,9 +1,11 @@
-# Script de Atualização para Banana Pi M5 e Ubuntu 24.04
+# Script de Atualização para Banana Pi M5 e Ubuntu 24.04 - update.sh
 
 ## Prompt Original
 
 ```
 na pasta update crie um script em bash (com menu onde a opção 0 é de sair e/ou voltar. Que eu consiga fazer cada um separadamente ou junto) com o mesmo nome para funcionanr no banana pi m5 com arquitetura de aarch64 e no ubuntu 24.04 (noble) que faça: update, upgrade, dist-upgrade, install -f -y, autoremove e autoclean. Crie também um arquivo .md com o mesmo nome com a explicação e com esse prompt original. E no fina do arquivo crie "rm -rf arquivo.sh;nano arquivo.sh;chmod +x arquivo.sh;bash arquivo.sh" trocando arquivo pelo o nome de arquivo
+
+coloque um opção de para desligar e/ou reiniciar, não esquecendo de atualizar o arquivo md e atualizei o nome do arquivo para update
 ```
 
 ## Descrição do Script
@@ -29,6 +31,8 @@ Este script foi desenvolvido especificamente para o **Banana Pi M5** com arquite
 5) Autoremove (Remover pacotes desnecessários)
 6) Autoclean (Limpar cache)
 7) ATUALIZAÇÃO COMPLETA (Todas as opções acima)
+8) Reiniciar Sistema / Restart System
+9) Desligar Sistema / Shutdown System
 0) Sair / Exit
 ```
 
@@ -75,6 +79,18 @@ Este script foi desenvolvido especificamente para o **Banana Pi M5** com arquite
 - Processo completo de atualização e limpeza
 - Garante sistema totalmente atualizado e otimizado
 
+### 8. Reiniciar Sistema
+**Função**: Reinicia o sistema operacional
+- Conta regressiva de 10 segundos com opção de cancelamento (Ctrl+C)
+- Útil após atualizações que requerem reinicialização
+- Executa o comando `reboot` para reiniciar o sistema
+
+### 9. Desligar Sistema
+**Função**: Desliga completamente o sistema
+- Conta regressiva de 10 segundos com opção de cancelamento (Ctrl+C)
+- Desligamento seguro do sistema
+- Executa o comando `shutdown -h now` para desligar
+
 ## Recursos Especiais
 
 ### Detecção de Sistema
@@ -111,21 +127,21 @@ O script detecta automaticamente:
 
 ```bash
 # Remover arquivo existente (se houver)
-rm -rf bananapim5.sh
+rm -rf update.sh
 
 # Criar novo arquivo
-nano bananapim5.sh
+nano update.sh
 
 # Dar permissão de execução
-chmod +x bananapim5.sh
+chmod +x update.sh
 
 # Executar o script
-bash bananapim5.sh
+bash update.sh
 ```
 
 ### Execução Direta:
 ```bash
-sudo ./bananapim5.sh
+sudo ./update.sh
 ```
 
 ## Observações Importantes
@@ -150,5 +166,5 @@ sudo ./bananapim5.sh
 ## Comandos para Gerenciar o Arquivo
 
 ```bash
-rm -rf bananapim5.sh;nano bananapim5.sh;chmod +x bananapim5.sh;bash bananapim5.sh
+rm -rf update.sh;nano update.sh;chmod +x update.sh;bash update.sh
 ```
