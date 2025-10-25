@@ -574,7 +574,6 @@ main() {
         show_menu
         read -p "Escolha uma opção / Choose an option (0-8): " choice
         echo ""
-        
         case $choice in
             1)
                 list_disks
