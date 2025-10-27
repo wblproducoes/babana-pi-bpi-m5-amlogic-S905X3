@@ -414,16 +414,16 @@ configure_nginx() {
 server {
     listen 80;
     listen [::]:80;
-    server_name $server_ip;
+    server_name $server_ip localhost;
     
     # Redirect HTTP to HTTPS
-    return 301 https://\$server_name\$request_uri;
+    return 301 https://\$host\$request_uri;
 }
 
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name $server_ip;
+    server_name $server_ip localhost;
     
     # SSL Configuration
     ssl_certificate $SSL_DIR/nginx.crt;
@@ -468,6 +468,19 @@ server {
     gzip_vary on;
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+    # pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php-fpm-${TARGET_USER}.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_buffer_size 32k;
+        fastcgi_buffers 8 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+    }
 }
 EOF
     
