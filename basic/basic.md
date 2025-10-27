@@ -1,8 +1,12 @@
 # Script de Pacotes Básicos para Banana Pi M5 e Ubuntu 24.04 - basic.sh
 
-## Prompt Original
+## Histórico de Atualizações
 
+### 📝 **Versão 1.0** - Versão Inicial
+**Prompt Original:**
 "na pasta basic crie um script em bash (com menu onde a opção 0 é de sair e/ou voltar) com o mesmo nome para funcionanr no banana pi m5 com arquitetura de aarch64 e no ubuntu 24.04 (noble) que instale e desistale (incluindo a pasta, mesmo que a mesma não esteja vazia) o curl, unzip, unrar, git, ufw (configurando o mesmo para as portas: 20,21,40000:50000, 80, 443, 22, 1305, 465, 587, 993, 995, 143, 110) e mostrando o status e reiniciando, wget. Crie também um arquivo .md com o mesmo nome com a explicação e com esse prompt original. E no fina do arquivo crie "rm -rf arquivo.sh;nano arquivo.sh;chmod +x arquivo.sh;bash arquivo.sh" trocando arquivo pelo o nome de arquivo"
+
+---
 
 ## Descrição do Script
 

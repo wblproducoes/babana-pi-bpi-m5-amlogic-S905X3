@@ -1,11 +1,24 @@
 # Script de Atualização para Banana Pi M5 e Ubuntu 24.04 - update.sh
 
-## Prompt Original
+## Histórico de Atualizações
 
+### 📝 **Versão 1.1** - Adição de Opções de Sistema
+**Prompt de Atualização:**
+```
+coloque um opção de para desligar e/ou reiniciar, não esquecendo de atualizar o arquivo md e atualizei o nome do arquivo para update
+```
+
+**Mudanças Implementadas:**
+- ✅ Adicionadas opções de desligamento e reinicialização do sistema
+- ✅ Atualizada documentação com novas funcionalidades
+- ✅ Renomeado arquivo para `update.sh`
+
+---
+
+### 📝 **Versão 1.0** - Versão Inicial
+**Prompt Original:**
 ```
 na pasta update crie um script em bash (com menu onde a opção 0 é de sair e/ou voltar. Que eu consiga fazer cada um separadamente ou junto) com o mesmo nome para funcionanr no banana pi m5 com arquitetura de aarch64 e no ubuntu 24.04 (noble) que faça: update, upgrade, dist-upgrade, install -f -y, autoremove e autoclean. Crie também um arquivo .md com o mesmo nome com a explicação e com esse prompt original. E no fina do arquivo crie "rm -rf arquivo.sh;nano arquivo.sh;chmod +x arquivo.sh;bash arquivo.sh" trocando arquivo pelo o nome de arquivo
-
-coloque um opção de para desligar e/ou reiniciar, não esquecendo de atualizar o arquivo md e atualizei o nome do arquivo para update
 ```
 
 ## Descrição do Script

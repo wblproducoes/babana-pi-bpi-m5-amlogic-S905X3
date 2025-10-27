@@ -289,9 +289,10 @@ md5sum -c checksums.md5
 - **Licença**: Uso livre para fins educacionais e profissionais
 - **Compatibilidade**: Linux Universal
 
-## 🎯 Prompt Original
+## 🎯 Histórico de Atualizações
 
-**Solicitação do Usuário:**
+### 📝 **Versão 1.0** - Versão Inicial
+**Prompt Original:**
 "crie um script em base de bare-metal que crie, restaure e faça backup do sistema para /media/disk0 com menu onde o 0 seja sair"
 
 ## 🚀 Comandos de Execução
