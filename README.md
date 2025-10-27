@@ -14,6 +14,15 @@ Esta coleção contém scripts em Bash desenvolvidos especificamente para **Bana
 - Listagem e exclusão de backups
 - Interface simples e compacta
 
+#### 📁 **addSite_CloudFlareTunnelsZeroTrust** - `addsite_cftzt.sh` (v2.0)
+**Função:** Gerenciador de Virtual Hosts (VHost) otimizado para Cloudflare Tunnel
+- Criação automática de usuários e estrutura de diretórios
+- Configuração de Virtual Hosts Nginx otimizada para proxy reverso
+- Geração de certificados SSL autoassinados
+- Integração com PHP-FPM por usuário
+- Link simbólico automático para phpMyAdmin
+- Remoção completa de VHosts com confirmação de segurança
+
 #### 📁 **basic** - `basic.sh` (v1.0)
 **Função:** Instalação de ferramentas básicas do sistema
 - Instala/desinstala: curl, unzip, unrar, git, ufw, wget
@@ -96,6 +105,15 @@ This collection contains Bash scripts specifically developed for **Banana Pi M5*
 - Bare-metal system restoration
 - Backup listing and deletion
 - Simple and compact interface
+
+#### 📁 **addSite_CloudFlareTunnelsZeroTrust** - `addsite_cftzt.sh` (v2.0)
+**Function:** Virtual Host (VHost) manager optimized for Cloudflare Tunnel
+- Automatic user creation and directory structure
+- Nginx Virtual Host configuration optimized for reverse proxy
+- Self-signed SSL certificate generation
+- Per-user PHP-FPM integration
+- Automatic phpMyAdmin symbolic link
+- Complete VHost removal with security confirmation
 
 #### 📁 **basic** - `basic.sh` (v1.0)
 **Function:** Basic system tools installation
